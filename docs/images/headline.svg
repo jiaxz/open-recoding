@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="248" height="248" viewBox="0 0 248 248" role="img" aria-label="这是一个Coding Agent — native multi-agent, endless agent loop">
+  <title>这是一个Coding Agent — native multi-agent, endless agent loop</title>
+  <defs>
+    <!-- 浅色微渐变底板 -->
+    <linearGradient id="hl-card-light" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8FAF9"/>
+    </linearGradient>
+
+    <!-- 品牌淡绿点阵：浅灰绿点 -->
+    <pattern id="hl-dots-light" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.9" fill="#2E7D32" opacity="0.08"/>
+    </pattern>
+
+    <!-- Coding Agent 强调绿色：在白色背景上高对比度深绿渐变 -->
+    <linearGradient id="hl-green-text-light" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1B5E20"/>
+      <stop offset="100%" stop-color="#2E7D32"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 白色正方形卡片底板，搭配细腻浅灰边框 -->
+  <rect x="1" y="1" width="246" height="246" rx="22" fill="url(#hl-card-light)" stroke="#E1E6E2" stroke-width="1.5"/>
+  <rect x="1" y="1" width="246" height="246" rx="22" fill="url(#hl-dots-light)"/>
+
+  <!-- 主标题方框：浅白底色 -->
+  <rect x="22" y="24" width="204" height="114" rx="10" fill="#FFFFFF" stroke="#C8D6CA" stroke-width="1.5"/>
+
+  <!-- 四角加粗 Corner Ticks 极客标记（清晰深绿色） -->
+  <g fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.85">
+    <path d="M 22 38 V 24 H 36"/>
+    <path d="M 212 24 H 226 V 38"/>
+    <path d="M 226 114 V 128 H 212"/>
+    <path d="M 36 128 H 22 V 114"/>
+  </g>
+
+  <!-- 主标题两行，居中框内（深黑炭灰 + 森林深绿） -->
+  <text x="124" y="65" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans CJK SC, Source Han Sans SC, WenQuanYi Micro Hei, sans-serif" font-size="20" font-weight="600" letter-spacing="1.5" fill="#1C1F20">这是一个</text>
+  <text x="124" y="103" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, sans-serif" font-size="22" font-weight="700" letter-spacing="0.5" fill="url(#hl-green-text-light)">Coding Agent</text>
+
+  <!-- 分隔微点 -->
+  <circle cx="124" cy="158" r="1.5" fill="#2E7D32" opacity="0.35"/>
+
+  <!-- 副标题两行：monospace 更小字体（中炭灰） -->
+  <text x="124" y="185" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="12" letter-spacing="0.8" fill="#5A645D">native multi-agent</text>
+  <text x="124" y="209" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="12" letter-spacing="0.8" fill="#5A645D">endless agent loop</text>
+
+  <!-- 品牌原生闭环 logomark（置于顶层，右上角完整可见） -->
+  <g transform="translate(192, 10) scale(0.32)" opacity="0.85">
+    <path d="M 101.94 82.30 L 100.85 84.24 L 99.67 86.13 L 98.40 87.96 L 97.04 89.73 L 95.61 91.44 L 94.10 93.07 L 92.51 94.63 L 90.85 96.12 L 89.12 97.53 L 87.33 98.85 L 85.48 100.09 L 83.57 101.24 L 81.61 102.30 L 79.60 103.27 L 77.55 104.14 L 75.46 104.91 L 73.34 105.59 L 71.19 106.16 L 69.01 106.64 L 66.82 107.01 L 64.60 107.28 L 62.38 107.44 L 60.16 107.50 L 57.93 107.45 L 55.71 107.31 L 53.49 107.05 L 51.29 106.70 L 49.11 106.24 L 46.96 105.67 L 44.83 105.01 L 42.74 104.25 L 40.68 103.39 L 38.67 102.44 L 36.70 101.39 L 34.78 100.25 L 32.93 99.03 L 31.12 97.72 L 29.39 96.32 L 27.72 94.85 L 26.12 93.29 L 24.60 91.67 L 23.15 89.97 L 21.79 88.21 L 20.51 86.39 L 19.31 84.51 L 18.21 82.57 L 17.19 80.59 L 16.28 78.56 L 15.45 76.49 L 14.73 74.38 L 14.11 72.24 L 13.58 70.08 L 13.16 67.89 L 12.84 65.69 L 12.63 63.47 L 12.52 61.24 L 12.51 59.02 L 12.61 56.79 L 12.81 54.57 L 13.12 52.36 L 13.53 50.17 L 14.04 48.01 L 14.65 45.86 L 15.36 43.75 L 16.18 41.68 L 17.08 39.64 L 18.08 37.65 L 19.18 35.71 L 20.36 33.83 L 21.63 32.00 L 22.99 30.23 L 24.42 28.53 L 25.94 26.89 L 27.53 25.33 L 29.19 23.85 L 30.92 22.44 L 32.71 21.12 L 34.57 19.88 L 36.47 18.73 L 38.44 17.68 L 40.44 16.71 L 42.49 15.84 L 44.58 15.07 L 46.71 14.40 L 48.86 13.82 L 51.04 13.35 L 53.24 12.98 L 55.45 12.72 L 57.67 12.56 L 59.90 12.50 L 62.12 12.55 L 64.35 12.70 L 66.56 12.96 L 68.76 13.31 L 70.94 13.78 L 73.09 14.34" fill="none" stroke="#2E7D32" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 81.02 16.61 L 70.48 18.95 L 73.32 9.05 Z" fill="#2E7D32"/>
+    <path d="M 32.63 45.45 L 33.34 44.18 L 34.11 42.95 L 34.94 41.75 L 35.82 40.60 L 36.76 39.48 L 37.75 38.42 L 38.78 37.40 L 39.87 36.43 L 40.99 35.51 L 42.16 34.65 L 43.37 33.84 L 44.62 33.09 L 45.90 32.39 L 47.21 31.76 L 48.54 31.19 L 49.91 30.69 L 51.29 30.25 L 52.70 29.87 L 54.12 29.56 L 55.55 29.32 L 57.00 29.15 L 58.45 29.04 L 59.90 29.00 L 61.35 29.03 L 62.80 29.13 L 64.25 29.29 L 65.68 29.53 L 67.11 29.83 L 68.51 30.19 L 69.90 30.62 L 71.27 31.12 L 72.61 31.68 L 73.92 32.30 L 75.21 32.99 L 76.46 33.73 L 77.67 34.53 L 78.84 35.39 L 79.98 36.30 L 81.07 37.26 L 82.11 38.27 L 83.11 39.33 L 84.05 40.44 L 84.94 41.59 L 85.78 42.78 L 86.55 44.00 L 87.28 45.27 L 87.94 46.56 L 88.54 47.89 L 89.07 49.24 L 89.54 50.61 L 89.95 52.01 L 90.29 53.42 L 90.57 54.85 L 90.78 56.29 L 90.92 57.74 L 90.99 59.19 L 90.99 60.64 L 90.93 62.09 L 90.80 63.54 L 90.60 64.98 L 90.33 66.41 L 90.00 67.83 L 89.60 69.23 L 89.13 70.60 L 88.60 71.96 L 88.01 73.28 L 87.36 74.58 L 86.64 75.85 L 85.87 77.08 L 85.04 78.28 L 84.16 79.43 L 83.22 80.54 L 82.23 81.61 L 81.19 82.63 L 80.11 83.59 L 78.98 84.51 L 77.81 85.37 L 76.60 86.18 L 75.35 86.93 L 74.07 87.62 L 72.76 88.25 L 71.42 88.82 L 70.06 89.32 L 68.67 89.76 L 67.27 90.14 L 65.85 90.44 L 64.41 90.68 L 62.97 90.86 L 61.52 90.96 L 60.07 91.00 L 58.61 90.97 L 57.16 90.87 L 55.72 90.70 L 54.28 90.47 L 52.86 90.17 L 51.46 89.80" fill="none" stroke="#2E7D32" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 43.52 87.53 L 54.06 85.19 L 51.23 95.09 Z" fill="#2E7D32"/>
+    <circle cx="60.00" cy="60.00" r="15.20" fill="none" stroke="#2E7D32" stroke-width="7"/>
+  </g>
+</svg>

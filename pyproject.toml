@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recoding"
+version = "0.8.0"
+description = "recoding: a recursive coding agent with Python, vision and multi-agents"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+recoding-web = "recoding_web.server:main"
+recoding = "recoding_cli.main:main"
+
+[project.optional-dependencies]
+cli = ["prompt_toolkit>=3.0,<4", "rich>=13.7,<15"]
+
+[tool.setuptools.package-dir]
+"" = "core"
+recoding_web = "apps/web/recoding_web"
+recoding_cli = "apps/cli/recoding_cli"
+
+[tool.setuptools.packages.find]
+where = ["core", "apps/web", "apps/cli"]
+include = ["node", "node.*", "multiagent", "multiagent.*", "session", "session.*", "recoding_web", "recoding_web.*", "recoding_cli", "recoding_cli.*", "tools", "tools.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"recoding_web" = ["static/*", "static/vendor/**/*"]
+"tools" = ["registry.json"]

@@ -1,0 +1,275 @@
+[
+  {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "install_packages",
+        "description": "Install missing helper Python dependencies into this WORKSPACE shared package directory, serialized by a cross-process workspace lock. Reuses the home-level pip cache; never uses sudo/--user. All Sessions in this workspace share these files. Try existing imports first; create fresh Pool processes after updating already-imported packages. This is not a project-venv installer.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "packages": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "minItems": 1,
+              "maxItems": 32
+            },
+            "upgrade": {
+              "type": "boolean"
+            },
+            "no_index": {
+              "type": "boolean"
+            },
+            "no_deps": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "packages"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "{tool_root}/install_packages.py"
+    ],
+    "output": "text"
+  },
+  {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "inspect_python_environment",
+        "description": "Read-only inspection of the tool Python, workspace installed distributions, shared cache and compatible host-user site. Does not import third-party packages or run startup hooks. Reports metadata, not an import-success guarantee.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "{tool_root}/inspect_python_environment.py"
+    ],
+    "output": "json"
+  },
+  {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "Read a bounded UTF-8 workspace file range and return its full-byte SHA-256 revision, line range, mode and newline style. Use that revision for edit_files. Symlinks and binary files require explicit Python/Bash.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "start_line": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "end_line": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_chars": {
+              "type": "integer",
+              "minimum": 128,
+              "maximum": 64000
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "{tool_root}/workspace_files.py",
+      "read_file"
+    ],
+    "output": "json",
+    "max_output": 524288
+  },
+  {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "edit_files",
+        "description": "Autonomously create/modify/delete/rename workspace files with expected revisions. No Git or human approval. Strict replacements or unified patches never guess ambiguous context. All paths preflight under a short workspace lock; each file publishes atomically, batches journal partial commits. On conflict reread and revise. undo_id restores only if current revisions still match this edit; Python/Bash writes remain allowed and can race.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "enum": [
+                      "create",
+                      "modify",
+                      "delete",
+                      "rename"
+                    ]
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "expected_sha256": {
+                    "type": "string",
+                    "description": "Exact SHA-256 from read_file, or absent for a new path."
+                  },
+                  "new_path": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "patch": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 511
+                  },
+                  "replacements": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "old": {
+                          "type": "string"
+                        },
+                        "new": {
+                          "type": "string"
+                        },
+                        "count": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      },
+                      "required": [
+                        "old",
+                        "new"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "path",
+                  "expected_sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "undo_id": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "{tool_root}/workspace_files.py",
+      "edit_files"
+    ],
+    "output": "json",
+    "max_output": 524288
+  },
+  {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "repo_query",
+        "description": "Navigate workspace paths, text, code outlines and symbol definitions with bounded results. Uses ripgrep ignore rules when available, Python AST, optional tree-sitter-language-pack, and labelled heuristic fallback. Lazy workspace-shared caches are disposable; reread current code before edits. No semantic-reference or whole-repository completeness claim. Narrow path/globs for large projects.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "files",
+                "search",
+                "outline",
+                "symbol"
+              ]
+            },
+            "path": {
+              "type": "string"
+            },
+            "query": {
+              "type": "string"
+            },
+            "regex": {
+              "type": "boolean"
+            },
+            "case_sensitive": {
+              "type": "boolean"
+            },
+            "include_ignored": {
+              "type": "boolean"
+            },
+            "globs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_files": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20000
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "{tool_root}/repo_query.py"
+    ],
+    "output": "json",
+    "max_output": 524288
+  }
+]

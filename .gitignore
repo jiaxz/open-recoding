@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.venv/
+.python-packages/
+*.egg-info/
+build/
+dist/
+# Local credentials and environment files must never be committed.
+.env
+.env.*
+sessions/
+**/.recoding/
+**/.recoding.../
+**/.codexing/
+**/.recurco/
+**/.recurco-sessions/
+**/.recode-sessions/
+**/.agent-sessions/
+**/.agent-inputs/
+context_*.jsonl
+.pytest_cache/
+node_modules/
+playwright-report/
+test-results/

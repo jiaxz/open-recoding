@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>recoding... · A Recursive Coding Agent</title>
+  <meta name="application-name" content="recoding...">
+  <link rel="icon" type="image/svg+xml" href="/logomark.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/vendor/katex/katex.min.css">
+  <script src="/vendor/marked/lib/marked.umd.js" defer></script>
+  <script src="/vendor/dompurify/purify.min.js" defer></script>
+  <script src="/vendor/katex/katex.min.js" defer></script>
+  <script src="/vendor/highlight/highlight.min.js" defer></script>
+  <script src="/vendor/highlight/latex.min.js" defer></script>
+  <script src="/vendor/highlight/dockerfile.min.js" defer></script>
+  <script src="/rendering.js" defer></script>
+  <script src="/statistics.js" defer></script>
+  <script src="/all-agents.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body data-detail-mode="chat">
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><symbol id="recoding-loop" viewBox="0 0 24 24"><image href="/logomark.svg" width="24" height="24"/></symbol></svg>
+  <aside class="sidebar" id="session-sidebar" aria-label="Session 导航">
+    <div class="sidebar-heading"><a class="brand" href="/" aria-label="recoding... 首页"><span class="brand-mark" aria-hidden="true"><svg class="loop-mark" viewBox="0 0 24 24"><use href="#recoding-loop"/></svg></span><span class="brand-copy"><strong class="brand-name">recoding<span>...</span></strong><small class="brand-tagline">A Recursive Coding Agent</small></span></a><button type="button" class="panel-toggle" id="hide-sidebar" aria-label="隐藏 Session 侧栏" title="隐藏 Session 侧栏">‹</button></div>
+    <button class="new-session primary-subtle" id="new-session"><span>＋</span> 新建 Session <kbd>N</kbd></button>
+    <button type="button" class="open-workspace" id="open-workspace"><span>▱</span> 打开工作目录 <span>↗</span></button>
+    <button class="text-button resume-session" id="resume-session">↗ 打开存档…</button>
+    <div class="section-label session-navigation-heading">SESSIONS <span id="session-count">0</span><span class="session-nav-actions"><button type="button" class="text-button" id="discover-sessions" title="重新同步并展开所有 Session 路径，覆盖手动折叠" disabled>发现全部</button><button type="button" class="text-button" id="browse-workspace" title="选择目录并创建 Session">⌕</button></span></div>
+    <nav id="session-list" class="session-list" aria-label="Sessions"></nav>
+    <div class="sidebar-footer"><span class="local-dot"></span><span>运行在服务器上<small id="root-path">正在读取 workspace…</small></span><button type="button" class="panel-toggle sound-toggle" id="toggle-sound" aria-label="关闭消息提示音" title="消息提示音已开启" aria-pressed="true">♪</button></div>
+  </aside>
+  <div class="column-resizer sidebar-resizer" id="sidebar-resizer" role="separator" aria-label="调整 Session 导航栏宽度" aria-orientation="vertical" aria-controls="session-sidebar" aria-valuemin="220" aria-valuemax="420" aria-valuenow="248" tabindex="0" title="左右拖动调整宽度；双击或 Enter 恢复默认；方向键微调"></div>
+  <button class="sidebar-shade" id="sidebar-shade" aria-label="关闭导航" tabindex="-1"></button>
+
+  <main class="workspace">
+    <header class="topbar">
+      <button type="button" class="panel-toggle menu-button" id="menu" aria-label="切换 Session 侧栏" aria-controls="session-sidebar" aria-expanded="true" title="显示或隐藏 Session 侧栏">☰</button>
+      <div class="session-heading"><div class="breadcrumb"><span class="workspace-caption">Workspace</span><strong id="session-title">选择一个 Session</strong><button type="button" class="text-button" id="rename-session" disabled title="修改 Session 名称" aria-label="修改 Session 名称">✎</button></div><div class="session-location" id="session-workspace">尚未选择工作目录</div></div>
+      <div class="top-actions"><span class="mode-badge" id="mode-badge">WEB</span><button type="button" id="stop" class="stop-button" disabled title="停止整个 Session 的 Master 与所有 sub-agent Loops"><span>■</span> Stop All</button><button class="text-button" id="close-session" disabled title="关闭当前运行环境，保留 Session 文件">关闭环境</button><button type="button" class="panel-toggle" id="toggle-inspector" aria-label="切换运行详情侧栏" aria-controls="inspector-panel" aria-expanded="true" title="显示或隐藏运行详情">◫</button></div>
+    </header>
+    <div id="workspace-sync" class="workspace-sync" data-state="syncing" role="status" aria-live="polite">
+      <span class="sync-indicator" aria-hidden="true"></span>
+      <div class="sync-copy"><strong id="workspace-sync-label">正在同步当前工作目录…</strong><span id="workspace-sync-path">正在连接服务器…</span><span id="workspace-sync-stage"></span><details id="workspace-sync-timing" hidden><summary>耗时详情</summary><div id="workspace-sync-steps" aria-label="已完成阶段耗时"></div></details><span id="workspace-sync-detail" hidden></span></div>
+      <span id="workspace-sync-elapsed" class="sync-elapsed" aria-hidden="true"></span><button type="button" id="retry-workspace-sync" class="text-button" hidden>重试</button>
+    </div>
+    <div class="body-grid">
+      <section class="conversation" id="conversation-panel" aria-label="Agent 对话">
+        <div class="agent-navigation" id="agent-navigation" hidden>
+          <div class="agent-live-row">
+            <div id="agent-tabs" class="agent-tabs" role="tablist" aria-label="Master、运行中与当前查看的 Agents"></div>
+          </div>
+          <div class="agent-current" id="agent-current" hidden><strong id="viewing-agent-name">Master</strong><span id="viewing-agent-status">stopped</span></div>
+        </div>
+        <div class="toast" id="toast" role="alert" hidden></div>
+        <div class="conversation-content">
+        <div class="conversation-scroll" id="conversation-scroll" role="region" aria-label="对话滚动区域" tabindex="0">
+          <div id="welcome" class="welcome-placeholder" hidden></div>
+          <div id="messages" class="messages" role="log" aria-label="对话记录" aria-live="polite"></div>
+        </div>
+        <button type="button" id="jump-to-latest" class="latest-button" aria-label="回到当前 Agent 的最新消息" aria-controls="conversation-scroll" hidden>↓ 最新</button>
+        </div>
+        <div class="composer-wrap" id="composer-wrap">
+          <div id="composer-resizer" class="composer-resizer" role="separator" tabindex="0" aria-label="调整输入框最大高度" aria-orientation="horizontal" aria-controls="prompt" title="上下拖动调整输入框最大高度；方向键微调；双击或 Enter 恢复默认；Esc 撤销"></div>
+          <div class="runtime-line">
+            <div class="composer-tools"><span class="composer-hint">任意时刻输入，Agent立即响应。</span><button type="button" id="composer-help-button" class="composer-help-button" popovertarget="composer-help" aria-label="输入帮助" aria-haspopup="dialog" title="输入快捷键">?</button></div>
+            <div id="detail-visibility" class="detail-visibility" role="group" aria-label="当前 Agent 的显示内容">
+              <button type="button" data-detail-mode="human" aria-pressed="false">只看跟我对话</button>
+              <button type="button" id="all-message-filter" data-detail-mode="filter" popovertarget="all-message-filter-panel" aria-haspopup="dialog" aria-expanded="false" aria-pressed="false" hidden>看部分agent对话</button>
+              <button type="button" data-detail-mode="chat" aria-pressed="true">看Agent之间对话</button>
+              <button type="button" data-detail-mode="all" aria-pressed="false">看更多细节</button>
+            </div>
+            <div class="runtime-info"><span class="status-dot" id="status-dot"></span><span id="runtime-label">新建或选择一个 Session，开始工作</span><span id="elapsed"></span></div>
+          </div>
+          <div id="composer-body" class="composer-body">
+            <div id="session-resume-notice" class="session-resume-notice" role="status" hidden>
+              <div><strong id="session-resume-title">当前仅浏览 Session</strong><span id="session-resume-copy">此 Session 已停止。是否 Resume Master？sub-agent 由 Master 决定恢复。</span></div>
+              <button type="button" id="continue-task" class="resume-loop-button" title="仅恢复 Master 的常驻 Loop；sub-agent 由 Master 决定恢复">Resume Master</button>
+            </div>
+            <form id="composer" class="composer">
+              <div id="attachment-tray" class="attachment-tray" aria-label="待发送图片" hidden></div>
+              <div class="composer-input-row">
+                <button type="button" id="message-recipient" class="recipient-trigger" popovertarget="message-recipients" aria-label="选择消息接收者" aria-haspopup="dialog" aria-expanded="false" hidden>@ Master ▾</button>
+                <label for="prompt" class="sr-only">输入任务或粘贴图片</label><textarea id="prompt" rows="1" placeholder="描述任务，或粘贴剪贴板中的图片…" maxlength="60000"></textarea>
+                <button type="submit" id="send" class="send-button" disabled>发送 <span>↑</span></button>
+              </div>
+              <div id="input-delivery-note" class="input-delivery-note" role="status" hidden></div>
+            </form>
+            <div class="composer-note" id="composer-note" role="status" hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="column-resizer inspector-resizer" id="inspector-resizer" role="separator" aria-label="调整执行详情栏宽度" aria-orientation="vertical" aria-controls="inspector-panel" aria-valuemin="240" aria-valuemax="520" aria-valuenow="285" tabindex="0" title="左右拖动调整宽度；双击或 Enter 恢复默认；方向键微调"></div>
+      <aside class="inspector" id="inspector-panel" aria-label="执行详情">
+        <section id="context-maintenance" class="context-maintenance" aria-label="后台上下文压缩" aria-live="polite" hidden></section>
+        <div class="model-card session-resources"><span class="section-label">SESSION RESOURCES</span><label class="resource-model-label" for="model-name">Model</label><select id="model-name" aria-label="Session 模型" disabled><option>—</option></select><span id="model-mode">选择 Session 后可切换模型</span><div class="remote-heading"><span>Remote nodes</span><button type="button" id="add-node" class="text-button" title="添加远程计算节点" aria-label="添加远程节点" disabled>＋</button></div><div id="remote-node-list" class="remote-node-list"></div></div>
+        <section class="agent-directory" id="agent-directory" aria-label="Session Agent 列表" hidden>
+          <div class="agent-directory-heading"><span class="section-label">AGENTS</span><small class="agent-count-scope">含 Master</small><button type="button" id="toggle-agent-settings" class="text-button" aria-label="Agent 运行设置" aria-controls="agent-settings-panel" aria-expanded="false">⚙ 设置</button></div>
+          <div id="agent-settings-panel" class="agent-settings" role="group" aria-label="Agent 运行设置" hidden>
+            <label for="execution-mode">执行模式</label><select id="execution-mode" aria-label="Session 执行模式" disabled><option value="sandbox">Sandbox · 隔离执行</option><option value="host">Host · 无隔离</option></select><small id="execution-mode-note">停止 Session 后可切换</small>
+            <form id="agent-limit-form" class="agent-limit-form"><label for="agent-limit" title="整个 Session 同时运行的 sub-agent 数量；降低上限不会终止现有 Agent">并发上限</label><input id="agent-limit" type="text" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" value="16" aria-label="并发 sub-agent 上限" title="输入 0–99 的整数" required disabled><button type="submit" class="text-button" id="save-agent-limit" title="保存并发上限" disabled>↵</button></form>
+            <form id="idle-sleep-form" class="agent-limit-form"><label for="idle-sleep" title="模型未返回工具调用时，系统插入 sleep 工具的默认秒数；新消息可提前唤醒">空闲休眠</label><input id="idle-sleep" type="text" inputmode="decimal" pattern="[0-9]+([.][0-9]+)?" maxlength="12" value="10" aria-label="默认空闲休眠秒数" title="输入 0.1–3600 的秒数" required disabled><span>s</span><button type="submit" class="text-button" id="save-idle-sleep" title="保存空闲休眠时间" disabled>↵</button></form>
+          </div>
+          <div class="agent-counts" role="group" aria-label="Agent 数量，包含 Master">
+            <div class="agent-count-metric"><strong id="agent-running-count">0</strong><span>运行中</span></div>
+            <div class="agent-count-metric"><strong id="agent-count">0</strong><span>已创建</span></div>
+          </div>
+          <nav id="agent-list" class="agent-list" aria-label="选择要查看的 Agent"></nav>
+          <div id="agent-list-resizer" class="agent-list-resizer" role="separator" aria-label="上下调整 Agent 列表高度" aria-orientation="horizontal" aria-controls="agent-list" tabindex="0" title="上下拖动调整列表高度；双击恢复默认；方向键微调"></div>
+        </section>
+        <section class="inspector-section background-jobs" id="background-jobs" aria-label="Session 当前执行进程" hidden>
+          <details id="jobs-panel">
+            <summary class="jobs-heading"><span class="section-label">PROCESSES</span><span class="jobs-counts"><span><strong id="jobs-run-count">0</strong> run</span><span><strong id="jobs-ready-count">0</strong> ready</span></span></summary>
+            <div id="job-list" class="job-list"></div>
+            <div id="job-list-resizer" class="agent-list-resizer job-list-resizer" role="separator" aria-label="上下调整 Jobs 列表高度" aria-orientation="horizontal" aria-controls="job-list" tabindex="0" title="上下拖动调整列表高度；双击恢复默认；方向键微调"></div>
+          </details>
+        </section>
+        <section class="inspector-section" id="team-summary" aria-label="整个 Session 的 Agent 汇总" hidden></section>
+        <section class="inspector-section session-speed" id="session-speed" aria-label="Session API 输出速度"></section>
+        <section class="inspector-section tool-inventory" id="tool-inventory" aria-label="当前 Agent 的工具完整度">
+          <div class="inventory-heading"><span class="section-label">工具完整度</span><small id="tool-inventory-agent" class="inventory-agent"></small><button type="button" class="text-button" id="refresh-tools" disabled title="重新检查当前 Agent 沙箱中可发现的包和工具">↻ 检查</button></div>
+          <div id="tool-inventory-content">打开 Session 后自动检查</div>
+        </section>
+        <div class="inspector-section"><div class="section-label">WORKSPACE</div><div class="inspector-path" id="workspace-path">尚未选择工作目录</div></div>
+        <div class="inspector-section"><div class="section-label">SESSION ARCHIVE</div><div class="inspector-path" id="session-store-path">对话、图片和设置保存在 .recoding。</div><button type="button" class="text-button archive-copy" id="copy-archive" disabled>复制存档路径 ↗</button></div>
+        <div class="inspector-tip"><svg class="loop-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#recoding-loop"/></svg><p>取消会保留已完成的步骤，<br>并在 context 中记录停止位置。</p></div>
+      </aside>
+    </div>
+  </main>
+
+  <dialog id="node-dialog">
+    <form id="node-form">
+      <div class="dialog-heading"><span class="eyebrow">SESSION RESOURCE</span><button type="button" id="dismiss-node" class="icon-button" aria-label="关闭节点表单">×</button></div>
+      <h2>添加远程节点</h2><p>使用服务器上的 SSH 配置，绑定一个远端工作目录。</p>
+      <label for="node-name">节点名称</label><input id="node-name" maxlength="64" required autocomplete="off" placeholder="gpu-box">
+      <label for="node-target">SSH 目标</label><input id="node-target" required autocomplete="off" placeholder="SSH 别名或 user@host">
+      <label for="node-workspace">远端工作目录</label><input id="node-workspace" required autocomplete="off" placeholder="/path/to/project">
+      <label for="node-mode">执行模式</label><select id="node-mode"><option value="sandbox">Sandbox</option><option value="host">Host · 无隔离</option></select>
+      <details class="node-advanced"><summary>高级连接设置</summary><label for="node-python">远端 Python</label><input id="node-python" value="/usr/bin/python3"><label for="node-ssh-config">服务器 SSH 配置文件（可选）</label><input id="node-ssh-config" placeholder="使用服务器默认 SSH 配置"></details>
+      <p id="node-progress" class="node-progress" role="status" aria-live="polite"></p>
+      <div class="dialog-actions"><button type="button" id="cancel-node" class="text-button">取消</button><button type="submit" id="submit-node" class="primary">连接并添加</button></div>
+    </form>
+  </dialog>
+  <dialog id="session-dialog">
+    <form id="session-form">
+      <div class="dialog-heading"><span class="eyebrow">A FRESH PLACE TO BUILD</span><button type="button" id="dismiss-dialog" class="icon-button" aria-label="关闭对话框">×</button></div>
+      <h2 id="session-dialog-title">新建 Session</h2><p id="session-dialog-note">选择工作目录，对话和图片保存在其 .recoding 下。</p>
+      <div id="create-fields">
+        <label for="session-name">Session 名称</label><input id="session-name" autocomplete="off" maxlength="64" required>
+        <label for="session-model">模型</label><select id="session-model" aria-label="新 Session 模型"></select>
+        <label for="session-execution-mode">执行模式</label><select id="session-execution-mode" aria-label="新 Session 执行模式"><option value="sandbox">Sandbox · 隔离执行（默认）</option><option value="host">Host · 当前用户权限，无隔离</option></select><small>Host 可访问当前用户的其他文件、凭据和进程。</small>
+        <label for="session-directory">工作目录</label><div class="path-input"><input id="session-directory" autocomplete="off" required><button type="button" class="text-button" id="choose-workspace">浏览</button></div>
+        <div class="dialog-path" id="dialog-path"></div>
+      </div>
+      <div id="resume-fields" hidden>
+        <label for="resume-path">Session 存档文件夹</label><div class="path-input"><input id="resume-path" placeholder="/project/.recoding/20261021-…" autocomplete="off"><button type="button" class="text-button" id="choose-session">浏览</button></div>
+        <div class="dialog-path">恢复完整对话、历史图片和设置。Python/Bash 重新启动，不重放旧代码。</div>
+      </div>
+      <div id="dialog-error" class="form-error" role="alert"></div>
+      <button class="dialog-submit" id="session-submit" type="submit">创建并打开 <span>↗</span></button>
+    </form>
+  </dialog>
+  <dialog id="rename-dialog">
+    <form id="rename-form"><div class="dialog-heading"><span class="eyebrow">SESSION</span><button type="button" class="icon-button" id="dismiss-rename" aria-label="取消改名">×</button></div><h2>修改 Session 名称</h2><label for="rename-name">名称</label><input id="rename-name" maxlength="64" required autocomplete="off"><div id="rename-error" class="form-error" role="alert"></div><button type="submit" class="dialog-submit" id="rename-submit">保存名称</button></form>
+  </dialog>
+  <section id="composer-help" class="composer-help" popover role="dialog" aria-labelledby="composer-help-title">
+    <img class="help-brand-logo" src="/logo.svg" width="960" height="280" alt="recoding... — A Recursive Coding Agent">
+    <div class="composer-help-heading"><h3 id="composer-help-title">输入帮助</h3><button type="button" class="icon-button" popovertarget="composer-help" popovertargetaction="hide" aria-label="关闭输入帮助" autofocus>×</button></div>
+    <div class="composer-shortcuts">
+      <p><kbd>Enter</kbd> 发送 · <kbd>Shift+Enter</kbd> 换行。<br>在输入框内粘贴剪贴板图片即可添加附件。</p>
+      <p>消息只发送给当前 Agent，在下一次 Model call 前读取。发送时的消息保留原位，读取时在对应 Model call 上方显示回执。你发送的消息靠右显示，Agent 的回信用纯黑背景；这里只展示当前 Agent 的人机消息。</p>
+      <p>显示分为三档：“只看跟我对话”只看你与当前 Agent 的对话；“看Agent之间对话”再显示它与其他 Agent 的聊天；“看更多细节”还显示模型、工具与读取回执。Agent 对话中 me 代表当前 Agent，others 代表其他 Agent，聊天内容支持 Markdown、公式、代码高亮和图片。新消息不会强制跳到底部，可点右下角“↓ 最新”回到底部。All agents 只汇总消息，依次为“只看跟我对话”“看部分agent对话”“看全部agent对话”；第二项打开筛选，可组合多选发送者与接收者；你发出的消息始终可见。选择“全部”勾选所有项，候选只列你和存活 Agent。消息上的“回复”直接选中发送者并聚焦输入框。@ 只列存活的 Agent，并提供 @all 和 @all（除了 master），群发只发给存活接收者。给停止的 Agent 留言请进入它的单独页面，发送不会自动恢复。</p>
+      <p>前两档中，可在 Agent 给你的回复前“展开此前细节”，或在你的消息后“展开后续细节”。这些按钮只展开对应消息间的过程，不移动消息；Agent 间聊天卡不设这类按钮。再次点击当前档位，会收起局部展开。</p>
+      <p>草稿、附件、输入框最大高度、显示档位按当前 Agent 保存，输入区始终可见。可给停止或失败的 Agent 留言及粘贴图片，保存为未读，恢复后读取；发送不会自动恢复。Agent 间新消息在停止状态拒收且不入队；休眠中的新消息仍会唤醒它。</p>
+      <p>顶部 Stop All 停止整个 Session；Resume Master 只恢复 Master，sub-agent 由 Master 管理。按 <kbd>Esc</kbd> 可停止全部 Loops；帮助打开时先关闭帮助。</p>
+    </div>
+  </section>
+  <div id="session-menu" popover role="menu" aria-label="Session 操作"><button type="button" role="menuitem" id="menu-rename-session">✎ 修改名称</button><button type="button" role="menuitem" id="menu-delete-session" class="danger-text">× 删除 Session</button></div>
+  <dialog id="delete-dialog">
+    <form id="delete-form"><h2>删除 Session？</h2><p>将关闭 <strong id="delete-name"></strong> 的运行环境，删除此 Session 的对话、图片快照、设置和日志。此操作无法撤销。</p><div id="delete-path" class="dialog-path"></div><p>Workspace 工作文件、共享安装包、home 缓存和其他 Session 均会保留。</p><div id="delete-error" class="form-error" role="alert"></div><div class="delete-actions"><button type="button" id="cancel-delete" class="text-button">取消</button><button type="submit" id="confirm-delete" class="dialog-submit danger-button">删除 Session</button></div></form>
+  </dialog>
+  <dialog id="directory-dialog">
+    <div class="dialog-heading"><span class="eyebrow" id="directory-title">选择工作目录</span><button type="button" class="icon-button" id="dismiss-directory" aria-label="关闭目录选择">×</button></div>
+    <form id="directory-form" class="path-input"><input id="directory-path" aria-label="目录路径" autocomplete="off"><button class="text-button" type="submit">打开</button></form>
+    <button class="text-button" id="directory-up">↑ 上一级</button>
+    <div class="directory-list" id="directory-list"></div>
+    <div class="form-error" id="directory-error"></div>
+    <button type="button" class="dialog-submit" id="use-directory">使用此目录 <span>↗</span></button>
+  </dialog>
+  <div id="all-message-filter-panel" class="message-filter-picker" popover="auto" role="dialog" aria-label="All agents 消息筛选"></div>
+  <div id="message-recipients" class="recipient-picker" popover="auto" role="dialog" aria-label="选择消息接收者"></div>
+</body>
+</html>
