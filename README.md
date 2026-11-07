@@ -80,6 +80,10 @@ OpenRecoding 是一个以持续运行的 Agent 团队为核心的 Coding Agent�
 | [模型 Context](docs/context.md) · [观测与诊断](docs/observability.md)     | 历史、预算、用量、缓存、速度和排查             |
 | [开发维护](docs/development.md) · [常见问题](docs/troubleshooting.md)      | 定向检查、打包与故障处理                  |
 
+## 许可证
+
+本项目采用 [MIT 许可证](LICENSE)。随项目分发的第三方组件保留各自的许可证和版权声明。
+
 ---
 
 # English
@@ -161,3 +165,7 @@ See the [documentation index](docs/index.md) for the full navigation and suggest
 | [Runtime and data](docs/session-ownership.md) · [Archives](docs/session-storage.md) | Host protocol, locks, recovery, moving Sessions, and backups |
 | [Model Context](docs/context.md) · [Observation and diagnostics](docs/observability.md) | History, budgets, usage, caching, speed, and troubleshooting |
 | [Development](docs/development.md) · [Troubleshooting](docs/troubleshooting.md) | Focused checks, packaging, and issue diagnosis |
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Bundled third-party components retain their respective licenses and copyright notices.
