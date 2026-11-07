@@ -15,6 +15,16 @@
 .venv/bin/python3 recoding-cli.py chat --env-file .env -C ./sessions
 ```
 
+## 开源发行与仓库隔离
+
+- 开发源项目保留 `recoding` 名称；公开品牌为 **OpenRecoding**，公开仓库与默认克隆目录名为 `open-recoding`，地址为 <https://github.com/jiaxz/open-recoding>。两个工作区独立，公开名称不要求改动内部包名、启动入口或 Session 格式；仅持有公开仓库时可直接维护本仓库，不依赖私有开发源。
+- 公开仓库有独立 Git 历史，不暴露私有开发历史。首次仅导出选定版本的文件内容，在新目录初始化 Git；以后保留公开仓库已有 `.git`、提交、分支与 Tags，追加发行提交，不重新初始化。不得复制私有 `.git`、镜像推送、合并私有历史或用强推替换公开历史。
+- 发行同步按 Git 跟踪文件清单或指定提交的文件树进行，不直接复制整个工作目录。即使误被跟踪，也不公开密钥、`.env`、`.venv`、Session、`.recoding` 运行数据、本机日志、历史源码快照、缓存与构建产物；编辑器配置 `.vscode/` 与内部专项实验 `maintenance/benchmarks/` 也在导出时排除。通用包盘点与 Context 维护工具继续公开；公开文档和截图遵守跨机器复用原则。
+- 更新前先检查两个仓库的工作区、远端、目标分支及公开侧新增提交。公开侧贡献和修复先审阅并按需回流开发源，再合并本次文件更新；不得把未处理的公开修改当成可删除文件。同步不能覆盖或删除公开 `.git`，也不能盲目覆盖公开专用内容。
+- 公开版保留根目录 `LICENSE` 的 MIT 授权及打包许可声明，第三方组件保留各自许可证和版权声明。README 使用 OpenRecoding 名称、公开仓库链接和 `open-recoding` 目录说明，中英文同步；图片和内部命名按用户指定范围调整。公开版 `.gitignore` 保留 `/.vscode/`、`/maintenance/benchmarks/` 排除规则，导出清单也主动过滤这两个目录；不能只依靠 ignore 排除源仓库已跟踪的文件。后续导出须保留这些公开版差异，并同步维护本节约定。
+- 发行前核对文件清单与差异，检查密钥、本机信息、遗漏资源及 README 链接，执行与修改相关的必要检查；提交范围只含已审阅的发布文件。按当次发布授权提交、推送，再核对远端 SHA 与仓库可见性；不得把私有提交历史带入公开版。
+- 当前公开仓库由个人账号托管；个人托管与开源发行隔离是两个独立选择。需要多人共同治理、团队权限或多仓库管理时，可再评估 GitHub Organization，使用官方仓库转移功能迁移，并更新远端与文档链接；不为更换归属另建一个丢失 Issues、PR、Stars 和公开历史的替代仓库。参考 [GitHub 仓库转移说明](https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository)。
+
 ## 架构与执行
 
 - [架构总览](docs/architecture.md) 持续维护当前控制/执行平面、目录与边界。每 Session 每 Node 一 workspace，一份 NodeRuntime；Local 固定必选，随创建/Resume 运行启动，纯浏览不启动。SSH NodeRuntime 与 Local 复用同一工具/协议，短断线连接回原 runtime_id，不重放代码；默认 60 秒租约回收失联环境，远端未确认回收需明确记录。Web 模型和 Remote nodes 共用紧凑 Session Resources，不显示 Local 选择。Kubernetes/多根目录/通用进程 RPC 尚未实现。
@@ -73,7 +83,7 @@
 - README 同一文件中先放完整中文版，再附完整英文版；中文是唯一内容基准。修改中文的功能、架构、使用方式、命令、链接或配图时，同步更新对应英文内容与资源引用，保持章节和信息一致。README 之外的文档体系暂时保持中文，除非用户另行要求。
 
 - 默认只做针对修改的必要检查，不例行全量；完整命令保留在 [开发文档](docs/development.md)。有限 driver 显式 Stop endless loop。测试使用离线 Demo/本机替身，不读真实 `.env`、真实 Session 或外部模型 API。
-- 用户明确要求真实模型/联网行为实测时，可使用 maintenance/benchmarks 的显式 --live 入口；默认自动测试仍离线。真实实测只创建 sessions/tests 下的新工作区，模型配置不输出密钥，不读既有 Session；先关闭资源并归档原始证据到忽略的 .recoding/maintenance，再做派生分析与清理，不能因分析失败删除唯一证据。原始 JSONL 以文件行读取，不用 str.splitlines() 切割合法 JSON 字符串内的 Unicode 分隔符。
+- 用户明确要求真实模型/联网行为实测时，使用独立人工 driver 并显式启用真实请求；内部专项实验脚本仅在开发侧保留，不属于公开发行。默认自动测试仍离线。真实实测只创建 sessions/tests 下的新工作区，模型配置不输出密钥，不读既有 Session；先关闭资源并归档原始证据到忽略的 .recoding/maintenance，再做派生分析与清理，不能因分析失败删除唯一证据。原始 JSONL 以文件行读取，不用 str.splitlines() 切割合法 JSON 字符串内的 Unicode 分隔符。
 - 供 Host Coding Agent 使用的维护脚本集中在 `maintenance/`，不放根目录或 Web/CLI 应用包；模型可调用的正式 non-builtin 工具仍放 `tools/`。维护脚本直接调用 Core，不启动 UI/Host；用项目 `.venv/bin/python3` 执行。
 - 测试代码在 `tests/`，所有测试 Session/workspace 在专用 `sessions/tests/`。Python 用 `workspace_support.temporary_workspace`，浏览器用 `support.cjs::testDirectory`；最外层测试命令结束（成功或失败）后，先回收测试进程、沙箱和浏览器，再自动清空该目录全部内容。子进程继承测试所有者，不中途清理共享夹具；使用同一测试根的独立命令串行运行。不得把真实任务放入此目录，不清理其他 sessions 子目录。需要留档的脱敏报告先保存到 `.recoding/maintenance/`。
 - 可按需创建真实 SSH 虚拟测试节点：复用 tests/ssh_support.py::local_ssh，独立 loopback 端口、临时密钥/known_hosts 与 workspace，不改系统 SSH 或用户配置，不连接真实主机。tests/test_node_runtime.py 覆盖计算/状态/重连/租约/文件；同机端点不能代替异构机器验证。沿用 sessions/tests 自动清理，实测报告只留忽略的维护目录。

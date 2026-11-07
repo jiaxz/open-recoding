@@ -1,6 +1,6 @@
 # Host Coding Agent 维护工具
 
-这里放由 Codex、WorkBuddy 等 Host Coding Agent 按用户要求执行的项目维护脚本。入口和参数解析集中在本目录，复用 Core 的业务能力，不依赖 Web/CLI 外壳，常规工具不启动 Session Host、界面或模型调用；`recoding-context.py --live` 与 `benchmarks/` 中的人工实测入口是经用户明确授权后启用真实模型/网络的例外。
+这里放由 Codex、WorkBuddy 等 Host Coding Agent 按用户要求执行的项目维护脚本。入口和参数解析集中在本目录，复用 Core 的业务能力，不依赖 Web/CLI 外壳，常规工具不启动 Session Host、界面或模型调用；`recoding-context.py --live` 是经用户明确授权后启用真实模型 API 的例外。
 
 它们与 `tools/` 中的正式 non-builtin 工具用途不同：`tools/` 的工具由运行中的 Agent 在沙箱内调用；本目录的脚本由外部维护者在 Host 执行。普通用户的 Web/CLI 启动入口仍在项目根目录。
 
@@ -20,10 +20,6 @@
 包收录、安装和最小验证的原则见 [Host 维护指南](../docs/host-maintenance.md)，目录与扫描格式见 [包环境](../docs/packages.md)。测试入口为 `tests/test_package_inventory.py`，普通改动只选择相关用例，不例行全量扫描或测试。
 
 各包用途、优先级、替代关系与配套依赖分类见 [包用途与维护优先级](../docs/package-priorities.md)。
-
-## 人工并行实测
-
-`benchmarks/gold_news_parallel.py` 是显式的真实模型/联网实验，不由单元测试发现，也不连接现有 Host 或读取既有 Session。使用 `--live` 才加载项目模型配置并运行；参数和方法见 [实验说明](benchmarks/README.md)。原始运行记录只写入 Git 忽略的本地维护报告，不将本机结果写进通用文档。
 
 ## Context 压缩与检查点恢复
 

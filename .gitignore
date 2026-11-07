@@ -22,3 +22,6 @@ context_*.jsonl
 node_modules/
 playwright-report/
 test-results/
+# Editor preferences and internal experiments are excluded from public releases.
+/.vscode/
+/maintenance/benchmarks/
